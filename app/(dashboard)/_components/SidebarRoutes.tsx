@@ -1,9 +1,10 @@
 'use client'
 
-import { Compass, Layout } from 'lucide-react'
+import { BarChart2, Compass, Layout, List } from 'lucide-react'
 import SidebarItem from './SidebarItem'
+import { usePathname } from 'next/navigation';
 
-const unprotectedRoutes = [
+const userRoutes = [
     {
         icon: Layout,
         label: "Dashboard",
@@ -14,11 +15,27 @@ const unprotectedRoutes = [
         label: "Browse",
         href: "/search",
     },
+];
+
+const teacherRoutes = [
+    {
+        icon: List,
+        label: "Courses",
+        href: "/teacher/courses",
+    },
+    {
+        icon: BarChart2,
+        label: "Analytics",
+        href: "/teacher/analytics",
+    },
 ]
 
 const SidebarRoutes = () => {
-    const routes = unprotectedRoutes
-
+    const pathname = usePathname()
+    
+    const isTeacherPage = pathname?.includes("/teacher")
+    
+    const routes = isTeacherPage ? teacherRoutes : userRoutes
     return (
         <div className='flex flex-col w-full'>
             {routes.map((route) => (
