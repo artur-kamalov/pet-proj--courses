@@ -4,8 +4,8 @@ import React from 'react'
 const Logo = () => {
   return (
     <Image src='./logo.svg'
-        height={100}
-        width={100}
+        height={110}
+        width={110}
         alt='logo'
     />
   )
