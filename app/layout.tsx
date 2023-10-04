@@ -1,8 +1,10 @@
-import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import ToasterProvider from '@/components/providers/ToasterProvider'
+import {SessionProvider} from "next-auth/react"
+import { Session } from 'next-auth'
+import AuthProvider from '@/components/providers/AuthProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,17 +15,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  session
 }: {
-  children: React.ReactNode
+  children: React.ReactNode,
+  session: any
 }) {
   return (
-    <ClerkProvider>
       <html lang="en">
           <body className={inter.className}>
-            <ToasterProvider/>
-            {children}
+            <AuthProvider>
+              <ToasterProvider/>
+              {children}
+            </AuthProvider>
           </body>
       </html>
-    </ClerkProvider>
   )
 }
