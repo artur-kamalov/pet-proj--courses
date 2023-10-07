@@ -21,7 +21,7 @@ export default function RootLayout({
   session: any
 }) {
   return (
-      <html lang="en">
+      <html className='' lang="en">
           <body className={inter.className}>
             <AuthProvider>
               <ToasterProvider/>
