@@ -10,43 +10,46 @@ import { Course } from "@prisma/client";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import FileUpload from "@/components/FileUpload";
 
 interface ImageFormProps {
   initialData: Course
   courseId: string;
 };
 
-const formSchema = zod.object({
-  imageUrl: zod.string().min(1, {
-    message: "Image is required",
-  }),
-});
-
-const ImageForm = ({
+const MyImageForm = ({
   initialData,
   courseId
 }: ImageFormProps) => {
+
+  // console.log("===== IMAGE URL =====\n",initialData.imageUrl)
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const router = useRouter();
 
-  const onSubmit = async (values: zod.infer<typeof formSchema>) => {
-    try {
-      await axios.patch(`/api/courses/${courseId}`, values);
-      toast.success("Course updated");
-      toggleEdit();
-      router.refresh();
-    } catch {
+  const [file, setFile] = useState<File>()
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!file) return
+
+    try {      
+        const data = new FormData()
+        data.set('file', file)
+
+        await axios.patch(`/api/upload/courses/${courseId}`, data);
+        toast.success("Course updated");
+        toggleEdit();
+        router.refresh();
+
+    } catch (e: any) {
       toast.error("Something went wrong");
     }
   }
 
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
-      <h1>file upload form with uploadthing lib</h1>
       <div className="font-medium flex items-center justify-between">
         Course image
         <Button onClick={toggleEdit} variant="ghost">
@@ -84,21 +87,25 @@ const ImageForm = ({
         )
       )}
       {isEditing && (
-        <div>
-          <FileUpload
-            endpoint="courseImage"
-            onChange={(url) => {
-              if (url) {
-                onSubmit({ imageUrl: url });
-              }
-            }}
-          />
-          <div className="text-xs text-muted-foreground mt-4">
-            16:9 aspect ratio recommended
-          </div>
-        </div>
+        <>
+            <div>
+                <h1>my file upload form</h1>
+                <form onSubmit={onSubmit}>
+                    <input
+                        type="file"
+                        name="file"
+                        onChange={(e) => setFile(e.target.files?.[0])}
+                    />
+                    <input type="submit" value="Upload" />
+                </form>
+
+                <div className="text-xs text-muted-foreground mt-4">
+                  16:9 aspect ratio recommended
+                </div>
+            </div>
+        </>
       )}
     </div>
   )
 }
-export default ImageForm
+export default MyImageForm

@@ -64,10 +64,12 @@ export async function PATCH(
   req: Request,
   { params }: { params: { courseId: string } }
 ) {
+  
   try {
-    const session = await getServerSession(authConfig)
-    const userId = session?.user?.email;
+    const userId = await getServerSession(authConfig).then(session => session?.user?.email)
+
     const { courseId } = params;
+    
     const values = await req.json();
 
     if (!userId) {

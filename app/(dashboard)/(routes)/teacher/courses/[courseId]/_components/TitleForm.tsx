@@ -52,7 +52,7 @@ const TitleForm = ({courseId, initialData}: TitleFormProps) => {
             toggleEdit();
             router.refresh();
         } catch {
-            toast.error("Something went wrong");
+            toast.error("Something went wrong, try other title");
         }
     }
 
@@ -72,47 +72,42 @@ const TitleForm = ({courseId, initialData}: TitleFormProps) => {
                     )}
                 </Button>
             </div>
-            {/* {!isEditing && (
-                <p className="text-sm mt-2">
-                    {initialData.title}
-                </p>
-            )} */}
             {!isEditing ? (
                 <p className="text-sm mt-2">
                     {initialData.title}
                 </p>)
             : (
                 <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4 mt-4"
-                >
-                    <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormControl>
-                                <Input
-                                disabled={isSubmitting}
-                                placeholder="e.g. 'Advanced web development'"
-                                {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <div className="flex items-center gap-x-2">
-                    <Button
-                        disabled={!isValid || isSubmitting}
-                        type="submit"
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-4 mt-4"
                     >
-                        Save
-                    </Button>
-                    </div>
-                </form>
+                        <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormControl>
+                                    <Input
+                                    disabled={isSubmitting}
+                                    placeholder="e.g. 'Advanced web development'"
+                                    {...field}
+                                    />
+                                </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+
+                        <div className="flex items-center gap-x-2">
+                            <Button
+                                disabled={!isValid || isSubmitting}
+                                type="submit"
+                            >
+                                Save
+                            </Button>
+                        </div>
+                    </form>
                 </Form>
             )}
         </div>

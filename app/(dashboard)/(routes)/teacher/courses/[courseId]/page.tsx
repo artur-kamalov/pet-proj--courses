@@ -1,32 +1,53 @@
-import IconBadge from "@/components/IconBadge"
+import { db } from "@/lib/db"
 
 import { authConfig } from "@/configs/auth"
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
 
-import { CircleDollarSign, LayoutDashboard } from "lucide-react"
+import { CircleDollarSign, File, LayoutDashboard, ListChecks } from "lucide-react"
 
-import { db } from "@/lib/db"
+import IconBadge from "@/components/IconBadge"
 import TitleForm from "./_components/TitleForm"
 import DescriptionForm from "./_components/DescriptionForm"
 import ImageForm from "./_components/ImageForm"
-import { CategoryForm } from "./_components/CategoryForm"
+import CategoryForm from "./_components/CategoryForm"
 import PriceForm from "./_components/PriceForm"
+import ChaptersForm from "./_components/ChaptersForm"
+import AttachmentForm from "./_components/AttachmentForm"
+import Banner from "@/components/Banner"
+import Actions from "./_components/Actions"
+import MyImageForm from "./_components/MyImageForm"
 
 const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
 
   const session = await getServerSession(authConfig)
 
-  console.log("SESSION: ",session)
   if(!session){
     return redirect('/')
   }
 
   const course = await db.course.findUnique({
     where: {
-      id: params.courseId
-    }
-  })
+      id: params.courseId,
+      userId: session.user?.email || 'unknown'
+    },
+    include: {
+      chapters: {
+        orderBy: {
+          position: "asc",
+        },
+      },
+      attachments: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  });
+
+  if(!course){
+    return redirect('/')
+  }
 
   const categories = await db.category.findMany({
     orderBy: {
@@ -34,30 +55,30 @@ const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
     }
   })
 
-  if(!course){
-    return redirect('/')
-  }
 
   const requiredFields = [
     course.title,
     course.description,
     course.imageUrl,
     course.price,
-    course.categoryId
-  ]
+    course.categoryId,
+    course.chapters.some(chapter => chapter.isPublished),
+  ];
 
   const totalFields = requiredFields.length
   const completedFields = requiredFields.filter(Boolean).length
 
   const completionText = `(${completedFields}/${totalFields})`
 
+  const isComplete = requiredFields.every(Boolean);
+
   return (
     <>
-      {/* {!course.isPublished && (
+      {!course.isPublished && (
         <Banner
           label="This course is unpublished. It will not be visible to the students."
         />
-      )} */}
+      )}
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-y-2">
@@ -68,11 +89,11 @@ const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
               Complete all fields {completionText}
             </span>
           </div>
-          {/* <Actions
+          <Actions
             disabled={!isComplete}
             courseId={params.courseId}
             isPublished={course.isPublished}
-          /> */}
+          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
           <div>
@@ -90,10 +111,17 @@ const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
               initialData={course}
               courseId={course.id}
             />
+            {/* Image from with Uploadthing lib */}
             <ImageForm
-              initialData={course}
+              initialData={course}  
               courseId={course.id}
             />
+
+            {/* My custom image form */}
+            {/* <MyImageForm
+              initialData={course}
+              courseId={course.id}
+            /> */}
             <CategoryForm
               initialData={course}
               courseId={course.id}
@@ -105,7 +133,7 @@ const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
           </div>
           <div className="space-y-6">
             <div>
-              {/* <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-2">
                 <IconBadge icon={ListChecks} />
                 <h2 className="text-xl">
                   Course chapters
@@ -114,7 +142,7 @@ const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
               <ChaptersForm
                 initialData={course}
                 courseId={course.id}
-              /> */}
+              />
             </div>
             <div>
               <div className="flex items-center gap-x-2">
@@ -129,7 +157,7 @@ const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
               />
             </div>
             <div>
-              {/* <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-2">
                 <IconBadge icon={File} />
                 <h2 className="text-xl">
                   Resources & Attachments
@@ -138,7 +166,7 @@ const CourseIdPage = async ({params} : {params: {courseId: string}}) => {
               <AttachmentForm
                 initialData={course}
                 courseId={course.id}
-              /> */}
+              />
             </div>
           </div>
         </div>
