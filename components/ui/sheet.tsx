@@ -4,8 +4,23 @@ import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
-
 import { cn } from "@/lib/utils"
+
+import { Portal as _Portal1 } from "@radix-ui/react-portal";
+type PortalProps = React.ComponentPropsWithoutRef<typeof _Portal1>;
+interface DialogPortalProps {
+  children?: React.ReactNode;
+  /**
+   * Specify a container element to portal the content into.
+   */
+  container?: PortalProps['container'];
+  /**
+   * Used to force mounting when more control is needed. Useful when
+   * controlling animation with React animation libraries.
+   */
+  forceMount?: true;
+  className?: PortalProps['className'] | string
+}
 
 const Sheet = SheetPrimitive.Root
 
@@ -15,7 +30,7 @@ const SheetClose = SheetPrimitive.Close
 
 const SheetPortal = ({
   ...props
-}: SheetPrimitive.DialogPortalProps) => (
+}: DialogPortalProps ) => (
   <SheetPrimitive.Portal className={cn(props.className)} {...props} />
 )
 SheetPortal.displayName = SheetPrimitive.Portal.displayName
