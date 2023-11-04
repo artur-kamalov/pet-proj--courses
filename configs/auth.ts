@@ -27,10 +27,22 @@ export const authConfig: AuthOptions = {
                 id: "test-id",
               };
             },
-          }),
-        ],
+        }),
+    ],
+    callbacks: {
+      async jwt(params) {
+        if (params.trigger === "update" && this.session?.name){
+          params.token.name = this.session.name
+        }
 
-    // session: {
-    //     strategy: "jwt",
-    // },
+        return params.token
+      },
+    },
+    pages: {
+      signIn: "/signin",
+    },
+    // adapter: 
+    session: {
+        strategy: "jwt",
+    },
 }
